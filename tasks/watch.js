@@ -24,7 +24,7 @@ module.exports = function(grunt) {
       // Log which file has changed, and how.
       grunt.log.ok('File "' + filepath + '" ' + changedFiles[filepath] + '.');
     });
-    taskrun.changedFiles = changedFiles;
+    grunt.log.writeln();
     // Reset changedFiles
     changedFiles = Object.create(null);
   });
@@ -52,19 +52,15 @@ module.exports = function(grunt) {
     grunt.log.writeln('').writeln('Reloading watch config...'.cyan);
   });
 
-  // On shutdown, close up watchers
-  process.on('SIGINT', function() {
-    grunt.log.writeln('').write('Shutting down the watch task...');
-    watchers.forEach(function(watcher) {
-      watcher.close();
-    });
-    grunt.log.ok();
-    process.exit();
-  });
-
   grunt.registerTask('watch', 'Run predefined tasks whenever watched files change.', function(target) {
     var self = this;
     var name = self.name || 'watch';
+
+    // Close any previously opened watchers
+    watchers.forEach(function(watcher, i) {
+      watcher.close();
+    });
+    watchers = [];
 
     // Never gonna give you up, never gonna let you down
     if (grunt.config([name, 'options', 'forever']) !== false) {
